@@ -61,3 +61,17 @@ create table if not exists trade
     tradeid     varchar,
     blocktrade  bool
 );
+
+create index tickers_spot_symbol_index on tickers_spot(symbol);
+create index tickers_spot_topic_index on tickers_spot(topic);
+create index tickers_spot_ts_index on tickers_spot(ts);
+
+create index tickers_perp_symbol_index on tickers_perp(symbol);
+create index tickers_perp_topic_index on tickers_perp(topic);
+create index tickers_perp_ts_index on tickers_perp(ts);
+
+create index trade_symbol_index on trade(symbol);
+create index trade_market_index on trade(market);
+create index trade_side_index on trade(side);
+create index trade_topic_index on trade(topic);
+create index trade_ts_index on trade(ts);
