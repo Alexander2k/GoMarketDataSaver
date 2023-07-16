@@ -6,7 +6,7 @@ bybit:
 
 db:
   host: crypto-db
-  port: 5455
+  port: 5432
   username: postgres
   password: postgres
   db_name: crypto-db
