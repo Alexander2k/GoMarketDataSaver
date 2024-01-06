@@ -1,9 +1,10 @@
-package postgress
+package postgresRepo
 
 import (
 	"context"
 	"github.com/Alexander2k/CryptoBotGo/internal/domain"
 	"github.com/jmoiron/sqlx"
+
 	"log"
 )
 

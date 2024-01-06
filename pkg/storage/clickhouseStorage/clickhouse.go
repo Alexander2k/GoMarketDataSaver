@@ -1,10 +1,11 @@
-package clickhouse
+package clickhouseStorage
 
 import (
 	"context"
 	"fmt"
 	"github.com/Alexander2k/CryptoBotGo/config"
 	"github.com/ClickHouse/clickhouse-go/v2"
+
 	"time"
 )
 

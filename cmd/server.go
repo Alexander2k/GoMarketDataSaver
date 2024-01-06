@@ -5,8 +5,8 @@ import (
 	"github.com/Alexander2k/CryptoBotGo/config"
 	"github.com/Alexander2k/CryptoBotGo/internal/exchange"
 	"github.com/Alexander2k/CryptoBotGo/internal/repository"
-	clk "github.com/Alexander2k/CryptoBotGo/pkg/storage/clickhouse"
-	"github.com/Alexander2k/CryptoBotGo/pkg/storage/postgres"
+	"github.com/Alexander2k/CryptoBotGo/pkg/storage/clickhouseStorage"
+	"github.com/Alexander2k/CryptoBotGo/pkg/storage/postgresStorage"
 	"net/http"
 	"time"
 )
@@ -25,7 +25,7 @@ func Start() error {
 		IdleTimeout:       time.Second * 60,
 	}
 
-	db, err := postgres.NewPostgresDB(conf)
+	db, err := postgresStorage.NewPostgresDB(conf)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func Start() error {
 		return err
 	}
 
-	clickHouseDB, err := clk.NewClickHouseDB(conf)
+	clickHouseDB, err := clickhouseStorage.NewClickHouseDB(conf)
 	if err != nil {
 		return err
 	}

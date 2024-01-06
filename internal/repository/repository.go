@@ -3,9 +3,10 @@ package repository
 import (
 	"context"
 	"github.com/Alexander2k/CryptoBotGo/internal/domain"
-	clk "github.com/Alexander2k/CryptoBotGo/internal/repository/clickhouse"
-	"github.com/Alexander2k/CryptoBotGo/internal/repository/postgress"
+	"github.com/Alexander2k/CryptoBotGo/internal/repository/clickhouseRepo"
+	"github.com/Alexander2k/CryptoBotGo/internal/repository/postgresRepo"
 	"github.com/ClickHouse/clickhouse-go/v2"
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -28,7 +29,7 @@ type Repository struct {
 
 func NewRepository(db *sqlx.DB, conn clickhouse.Conn) *Repository {
 	return &Repository{
-		PgRepository:         postgress.NewPostgresRepository(db),
-		ClickHouseRepository: clk.NewClickHouseRepository(conn),
+		PgRepository:         postgresRepo.NewPostgresRepository(db),
+		ClickHouseRepository: clickhouseRepo.NewClickHouseRepository(conn),
 	}
 }
