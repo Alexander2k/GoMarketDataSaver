@@ -58,6 +58,8 @@ services:
     ports:
       - "9090:9090"
     restart: on-failure
+    networks:
+      - crypto-net
 
 
 
