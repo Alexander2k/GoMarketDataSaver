@@ -45,8 +45,20 @@ services:
     container_name: crypto-grafana
     ports:
       - "3000:3000"
+    volumes:
+      - crypto-grafana:/var/lib/grafana
     networks:
       - crypto-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: crypto-prometheus
+    command:
+      --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    restart: on-failure
+
 
 
 
@@ -54,6 +66,7 @@ volumes:
   crypto-cache:
   crypto-db:
   crypto-clickhouse:
+  crypto-grafana:
 
 
 networks:
