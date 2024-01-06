@@ -14,10 +14,10 @@ import (
 
 type Exchange struct {
 	websocket *websocket.Dialer
-	Repo      repository.IRepository
+	Repo      *repository.Repository
 }
 
-func NewExchange(repo repository.IRepository) *Exchange {
+func NewExchange(repo *repository.Repository) *Exchange {
 	return &Exchange{Repo: repo}
 }
 
@@ -57,7 +57,7 @@ func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 						if err != nil {
 							log.Printf("Error Unmarshal Perpetual: %v, %v", err, string(data.Event))
 						}
-						_, err = e.Repo.SavePerpetualTicker(context.Background(), &ticker)
+						_, err = e.Repo.PgRepository.SavePerpetualTicker(context.Background(), &ticker)
 						if err != nil {
 							log.Printf("Error saving perpetual ticker: %v - %v", err, string(data.Event))
 						}
@@ -70,7 +70,7 @@ func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 							log.Printf("Error Unmarshal Perpetual publicTrade data: %v, %v", err, string(data.Event))
 						}
 
-						_, err = e.Repo.SaveTrade(context.Background(), data, &trade)
+						_, err = e.Repo.PgRepository.SaveTrade(context.Background(), data, &trade)
 						if err != nil {
 							log.Printf("Error saving Perpetual trade data: %v - %v", err, string(data.Event))
 						}
@@ -88,7 +88,7 @@ func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 							log.Printf("Error Unmarshal Spot: %v%v", err, string(data.Event))
 						}
 
-						_, err = e.Repo.SaveSpotTicker(context.Background(), &ticker)
+						_, err = e.Repo.PgRepository.SaveSpotTicker(context.Background(), &ticker)
 						if err != nil {
 							log.Printf("Error saving spot ticker: %v - %v", err, string(data.Event))
 						}
@@ -100,7 +100,7 @@ func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 						if err != nil {
 							log.Printf("Error Unmarshal publicTrade data: %v - %v", err, string(data.Event))
 						}
-						_, err = e.Repo.SaveTrade(context.Background(), data, &trade)
+						_, err = e.Repo.PgRepository.SaveTrade(context.Background(), data, &trade)
 						if err != nil {
 							log.Printf("Error saving Spot trade data: %v - %v", err, string(data.Event))
 						}

@@ -12,7 +12,7 @@ import (
 
 func (d *PostgresDB) Migrate() error {
 	driver, err := postgres.WithInstance(d.Db.DB, &postgres.Config{})
-	m, err := migrate.NewWithDatabaseInstance("file://migrations", "users", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://migrations/postgres", "users", driver)
 	if err != nil {
 		log.Printf("Could find migrations: %v", err)
 		return err

@@ -5,6 +5,7 @@ import (
 	"github.com/Alexander2k/CryptoBotGo/config"
 	"github.com/Alexander2k/CryptoBotGo/internal/exchange"
 	"github.com/Alexander2k/CryptoBotGo/internal/repository"
+	clk "github.com/Alexander2k/CryptoBotGo/pkg/storage/clickhouse"
 	"github.com/Alexander2k/CryptoBotGo/pkg/storage/postgres"
 	"net/http"
 	"time"
@@ -32,7 +33,12 @@ func Start() error {
 		return err
 	}
 
-	repo := repository.NewRepository(db.Db)
+	clickHouseDB, err := clk.NewClickHouseDB(conf)
+	if err != nil {
+		return err
+	}
+
+	repo := repository.NewRepository(db.Db, clickHouseDB.DB)
 	ex := exchange.NewExchange(repo)
 
 	bybitPerp := ex.BybitConnectPerpetual(conf)

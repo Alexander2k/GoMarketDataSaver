@@ -27,10 +27,11 @@ type (
 		Database             string `mapstructure:"database"`
 		Username             string `mapstructure:"username"`
 		Password             string `mapstructure:"password"`
+		MaxExecutionTime     int    `mapstructure:"max_execution_time"`
 		DialTimeout          int    `mapstructure:"dial_timeout"`
 		MaxOpenConns         int    `mapstructure:"max_open_conns"`
 		MaxIdleConns         int    `mapstructure:"max_idle"`
-		BlockBufferSize      int    `mapstructure:"block_buffer_size"`
+		BlockBufferSize      uint8  `mapstructure:"block_buffer_size"`
 		MaxCompressionBuffer int    `mapstructure:"max_compression_buffer"`
 	}
 
