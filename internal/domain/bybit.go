@@ -1,6 +1,20 @@
 package domain
 
 type (
+	BybitOrderBook struct {
+		Topic string `json:"topic,omitempty"`
+		Type  string `json:"type,omitempty"`
+		Ts    int64  `json:"ts,omitempty"`
+		Data  struct {
+			Symbol string     `json:"s,omitempty"`
+			Bids   [][]string `json:"b,omitempty"`
+			Asks   [][]string `json:"a,omitempty"`
+			U      int        `json:"u,omitempty"`
+			Seq    int64      `json:"seq,omitempty"`
+		} `json:"data,omitempty"`
+		Cts int64 `json:"cts,omitempty"`
+	}
+
 	BybitKline struct {
 		Topic string `json:"topic"`
 		Data  []struct {

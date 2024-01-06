@@ -9,21 +9,22 @@ import (
 	"log"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Exchange struct {
 	websocket *websocket.Dialer
-	Repo      *repository.Repository
+	Repo      repository.IRepository
 }
 
-func NewExchange(repo *repository.Repository) *Exchange {
+func NewExchange(repo repository.IRepository) *Exchange {
 	return &Exchange{Repo: repo}
 }
 
 func (e *Exchange) ConveyorExchange(channels ...<-chan *domain.Event) chan *domain.Event {
 	var wg sync.WaitGroup
 	wg.Add(len(channels))
-	dataChan := make(chan *domain.Event, 20)
+	dataChan := make(chan *domain.Event, 5)
 	for _, channel := range channels {
 		ch := channel
 		go func() {
@@ -75,6 +76,10 @@ func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 						}
 					}
 
+					if strings.Contains(string(data.Event), "orderbook") {
+
+					}
+
 				case "Spot":
 					if strings.Contains(string(data.Event), "tickers") {
 						var ticker domain.BybitTickersSpot
@@ -101,6 +106,10 @@ func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 						}
 					}
 
+					if strings.Contains(string(data.Event), "orderbook") {
+
+					}
+
 				}
 
 			}
@@ -109,6 +118,58 @@ func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 		go func() {
 			wg.Wait()
 		}()
+	}
+
+}
+
+func (e *Exchange) CollectOrderBook(channel chan *domain.Event) (*domain.MeanPrices, error) {
+	var orderBook domain.BybitOrderBook
+	storage := domain.NewBookStorage()
+
+	ticker := time.After(1 * time.Minute)
+
+	for {
+		select {
+		case x := <-channel:
+			{
+				if strings.Contains(string(x.Event), "orderbook") {
+					err := json.Unmarshal(x.Event, &orderBook)
+					if err != nil {
+						return nil, err
+					}
+
+					storage.Market = x.Market
+
+					if orderBook.Type == "snapshot" {
+						for _, a := range orderBook.Data.Asks {
+							storage.StorePrice(a)
+						}
+
+						for _, b := range orderBook.Data.Bids {
+							storage.StorePrice(b)
+						}
+
+					}
+
+					if orderBook.Type == "delta" {
+						for _, a := range orderBook.Data.Asks {
+							storage.StorePrice(a)
+						}
+
+						for _, b := range orderBook.Data.Bids {
+							storage.StorePrice(b)
+						}
+
+					}
+				}
+			}
+		case <-ticker:
+			data := storage.CalculateMeanPrice()
+			data.Ticker = orderBook.Topic
+			data.Market = storage.Market
+			return data, nil
+
+		}
 	}
 
 }

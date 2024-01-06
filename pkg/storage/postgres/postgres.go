@@ -7,18 +7,18 @@ import (
 	"log"
 )
 
-type DB struct {
+type PostgresDB struct {
 	Db *sqlx.DB
 }
 
-func NewPostgresDB(cfg *config.Config) (*DB, error) {
+func NewPostgresDB(cfg *config.Config) (*PostgresDB, error) {
 	db, err := sqlx.Connect("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
-		cfg.Db.Host,
-		cfg.Db.Port,
-		cfg.Db.Username,
-		cfg.Db.DBName,
-		cfg.Db.Password,
-		cfg.Db.SSLMode,
+		cfg.PDB.Host,
+		cfg.PDB.Port,
+		cfg.PDB.Username,
+		cfg.PDB.DBName,
+		cfg.PDB.Password,
+		cfg.PDB.SSLMode,
 	))
 	if err != nil {
 		log.Printf("Error connecting: %v", err)
@@ -31,7 +31,7 @@ func NewPostgresDB(cfg *config.Config) (*DB, error) {
 		return nil, err
 	}
 
-	return &DB{
+	return &PostgresDB{
 		Db: db,
 	}, nil
 

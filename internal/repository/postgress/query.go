@@ -1,4 +1,4 @@
-package repository
+package postgress
 
 var (
 	sqlSavePerpTicker = `insert into tickers_perp(

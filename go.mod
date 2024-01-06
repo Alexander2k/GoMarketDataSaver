@@ -1,6 +1,6 @@
 module github.com/Alexander2k/CryptoBotGo
 
-go 1.20
+go 1.21
 
 require (
 	github.com/golang-migrate/migrate/v4 v4.15.2
@@ -8,7 +8,6 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.0
 	github.com/spf13/viper v1.15.0
-	gopkg.in/telebot.v3 v3.1.3
 )
 
 require (

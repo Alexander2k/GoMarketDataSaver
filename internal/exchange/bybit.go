@@ -40,19 +40,18 @@ func (e *Exchange) BybitConnectPerpetual(c *config.Config) chan *domain.Event {
 	go func() {
 		defer wg.Done()
 		for {
-
 			_, m, err := dial.ReadMessage()
 			if err != nil {
 				fmt.Printf("Error: %v", err)
 			}
 			messageChan <- m
+
 		}
 	}()
 
 	go func() {
 		defer wg.Done()
 		for {
-
 			select {
 			case <-ticker.C:
 				err := dial.WriteMessage(1, ping)
@@ -61,23 +60,25 @@ func (e *Exchange) BybitConnectPerpetual(c *config.Config) chan *domain.Event {
 				} else {
 					log.Printf("Sending ping")
 				}
-			case m := <-messageChan:
+			case mc := <-messageChan:
 				dataChan <- &domain.Event{
 					Market: "Perpetual",
-					Event:  m,
+					Event:  mc,
 				}
 			}
-
 		}
+
+	}()
+	go func() {
+		wg.Wait()
 	}()
 
-	go func() { wg.Wait() }()
 	return dataChan
 
 }
 
 func (e *Exchange) BybitConnectSpot(c *config.Config) chan *domain.Event {
-	//dur := time.Minute * 1
+
 	ticker := time.NewTicker(time.Minute * 5)
 	messageChan := make(chan []byte, 1)
 	dataChan := make(chan *domain.Event, 5)
@@ -118,7 +119,6 @@ func (e *Exchange) BybitConnectSpot(c *config.Config) chan *domain.Event {
 	go func() {
 		defer wg.Done()
 		for {
-
 			select {
 			case <-ticker.C:
 				err := dial.WriteMessage(1, ping)

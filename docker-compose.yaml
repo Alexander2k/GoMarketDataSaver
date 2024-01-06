@@ -27,21 +27,33 @@ services:
     networks:
       - crypto-net
 
-  jupyter:
-    image: jupyter/datascience-notebook:latest
-    container_name: jupyter
+  clickhouse:
+    image: bitnami/clickhouse:latest
+    container_name: crypto-clickhouse
     ports:
-      - 8888:8888
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:8123:8123"
+    volumes:
+      - crypto-clickhouse:/var/lib/clickhouse
     environment:
-      JUPYTER_ENABLE_LAB: "yes"
-      JUPYTER_TOKEN: "docker"
+      - CLICKHOUSE_ADMIN_PASSWORD=password
+    networks:
+        - crypto-net
+
+  grafana:
+    image: grafana/grafana
+    container_name: crypto-grafana
+    ports:
+      - "3000:3000"
     networks:
       - crypto-net
+
 
 
 volumes:
   crypto-cache:
   crypto-db:
+  crypto-clickhouse:
 
 
 networks:

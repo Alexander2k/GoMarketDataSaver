@@ -1,13 +1,25 @@
 bybit:
   url_perpetual: wss://stream.bybit.com/v5/public/linear
   url_spot: wss://stream.bybit.com/v5/public/spot
-  spot_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT,publicTrade.ETHUSDT,tickers.ETHUSDT,tickers.XRPUSDT,publicTrade.XRPUSDT,publicTrade.DOGEUSDT,tickers.DOGEUSDT,publicTrade.LTCUSDT,tickers.LTCUSDT
-  perpetual_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT,publicTrade.ETHUSDT,tickers.ETHUSDT,tickers.XRPUSDT,publicTrade.XRPUSDT,publicTrade.DOGEUSDT,tickers.DOGEUSDT,publicTrade.LTCUSDT,tickers.LTCUSDT
+  spot_pairs: orderbook.50.BTCUSDT
+  perpetual_pairs: orderbook.50.BTCUSDT
 
 db:
-  host: crypto-db
-  port: 5432
+  host: localhost
+  port: 5455
   username: postgres
   password: postgres
   db_name: crypto-db
   ssl: disable
+
+clickDB:
+  host: 127.0.0.1
+  port: 9000
+  database: default
+  username: default
+  password: password
+  dial_timeout: 30
+  max_open_conns: 5
+  max_idle: 5
+  block_buffer_size: 10
+  max_compression_buffer: 10240

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/Alexander2k/CryptoBotGo/config"
 	"github.com/Alexander2k/CryptoBotGo/internal/exchange"
 	"github.com/Alexander2k/CryptoBotGo/internal/repository"
@@ -32,15 +33,20 @@ func Start() error {
 	}
 
 	repo := repository.NewRepository(db.Db)
-
 	ex := exchange.NewExchange(repo)
 
 	bybitPerp := ex.BybitConnectPerpetual(conf)
-	bybitSpot := ex.BybitConnectSpot(conf)
 
-	c := ex.ConveyorExchange(bybitPerp, bybitSpot)
+	go func() {
+		for {
+			orderBook, err := ex.CollectOrderBook(bybitPerp)
+			if err != nil {
+				return
+			}
+			fmt.Printf("%v\n", orderBook)
+		}
 
-	ex.StoreData(c)
+	}()
 
 	if err := server.ListenAndServe(); err != nil {
 		return err

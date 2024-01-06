@@ -1,21 +1,37 @@
 package config
 
-import "log"
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+	"log"
+)
 
 type (
 	Config struct {
-		Db    DbConfig    `mapstructure:"db"`
-		Bybit BybitConfig `mapstructure:"bybit"`
+		PDB     PostgresDB   `mapstructure:"db"`
+		Bybit   BybitConfig  `mapstructure:"bybit"`
+		ClickDB ClickHouseDB `mapstructure:"clickDB"`
 	}
 
-	DbConfig struct {
+	PostgresDB struct {
 		Host     string `mapstructure:"host"`
 		Port     string `mapstructure:"port"`
 		Username string `mapstructure:"username"`
 		Password string `mapstructure:"password"`
 		DBName   string `mapstructure:"db_name"`
 		SSLMode  string `mapstructure:"ssl"`
+	}
+
+	ClickHouseDB struct {
+		Host                 string `mapstructure:"host"`
+		Port                 string `mapstructure:"port"`
+		Database             string `mapstructure:"database"`
+		Username             string `mapstructure:"username"`
+		Password             string `mapstructure:"password"`
+		DialTimeout          int    `mapstructure:"dial_timeout"`
+		MaxOpenConns         int    `mapstructure:"max_open_conns"`
+		MaxIdleConns         int    `mapstructure:"max_idle"`
+		BlockBufferSize      int    `mapstructure:"block_buffer_size"`
+		MaxCompressionBuffer int    `mapstructure:"max_compression_buffer"`
 	}
 
 	BybitConfig struct {
@@ -29,7 +45,7 @@ type (
 
 func NewConfig() (c *Config, err error) {
 	viper.SetConfigName("config")
-	viper.AddConfigPath("./app/config/")
+	viper.AddConfigPath("./config/")
 	viper.AutomaticEnv()
 
 	err = viper.ReadInConfig()
