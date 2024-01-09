@@ -42,10 +42,22 @@ func Start() error {
 	ex := exchange.NewExchange(repo)
 
 	bybitPerp := ex.BybitConnectPerpetual(conf)
+	bybitSpot := ex.BybitConnectSpot(conf)
 
 	go func() {
 		for {
 			orderBook, err := ex.CollectOrderBook(bybitPerp)
+			if err != nil {
+				return
+			}
+			fmt.Printf("%v\n", orderBook)
+		}
+
+	}()
+
+	go func() {
+		for {
+			orderBook, err := ex.CollectOrderBook(bybitSpot)
 			if err != nil {
 				return
 			}

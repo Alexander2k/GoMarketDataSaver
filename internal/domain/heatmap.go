@@ -18,7 +18,6 @@ type MeanPrices struct {
 	Ticker    string             `json:"ticker,omitempty"`
 	Timestamp int64              `json:"timestamp,omitempty"`
 	Prices    map[string]float64 `json:"tickers,omitempty"`
-	sync.RWMutex
 }
 
 func NewMeanPrices() *MeanPrices {
@@ -36,16 +35,24 @@ func (b *BookStorage) StorePrice(prices []string) {
 }
 
 func (b *BookStorage) CalculateMeanPrice() *MeanPrices {
+
+	b.mu.RLock()
+	prices := make(map[string][]string, len(b.Prices))
+	for k, v := range b.Prices {
+		prices[k] = v
+	}
+	b.ClearDataUnsafe()
+	b.mu.RUnlock()
+
 	meanPrices := NewMeanPrices()
 	tmp := make(map[string]float64)
-	b.mu.Lock()
 
-	for k, _ := range b.Prices {
-		prices := b.Prices[k]
-		length := len(prices)
+	for k, _ := range prices {
+		pricesQty := prices[k]
+		length := len(pricesQty)
 
 		sum := 0.0
-		for _, p := range prices {
+		for _, p := range pricesQty {
 			float, err := strconv.ParseFloat(p, 64)
 			if err != nil {
 				return nil
@@ -56,11 +63,8 @@ func (b *BookStorage) CalculateMeanPrice() *MeanPrices {
 		tmp[k] = mean
 	}
 
-	b.ClearDataUnsafe()
 	meanPrices.Prices = tmp
 	meanPrices.Timestamp = time.Now().Unix()
-
-	b.mu.Unlock()
 
 	return meanPrices
 }

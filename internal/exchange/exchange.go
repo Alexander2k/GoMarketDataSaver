@@ -106,10 +106,6 @@ func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 						}
 					}
 
-					if strings.Contains(string(data.Event), "orderbook") {
-
-					}
-
 				}
 
 			}

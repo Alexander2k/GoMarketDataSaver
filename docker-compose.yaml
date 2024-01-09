@@ -30,6 +30,7 @@ services:
   clickhouse:
     image: bitnami/clickhouse:latest
     container_name: crypto-clickhouse
+    restart: always
     ports:
       - "127.0.0.1:9000:9000"
       - "127.0.0.1:8123:8123"
@@ -43,6 +44,7 @@ services:
   grafana:
     image: grafana/grafana
     container_name: crypto-grafana
+    restart: always
     ports:
       - "3000:3000"
     volumes:
@@ -57,7 +59,7 @@ services:
       --config.file=/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
-    restart: on-failure
+    restart: always
     networks:
       - crypto-net
 
