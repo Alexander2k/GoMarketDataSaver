@@ -122,7 +122,7 @@ func (e *Exchange) CollectOrderBook(channel chan *domain.Event) (*domain.MeanPri
 	var orderBook domain.BybitOrderBook
 	storage := domain.NewBookStorage()
 
-	ticker := time.After(1 * time.Minute)
+	ticker := time.NewTicker(60000 * time.Millisecond)
 
 	for {
 		select {
@@ -159,7 +159,7 @@ func (e *Exchange) CollectOrderBook(channel chan *domain.Event) (*domain.MeanPri
 					}
 				}
 			}
-		case <-ticker:
+		case <-ticker.C:
 			data := storage.CalculateMeanPrice()
 			data.Ticker = orderBook.Topic
 			data.Market = storage.Market

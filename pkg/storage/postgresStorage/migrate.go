@@ -7,14 +7,14 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
-	"log"
+	"log/slog"
 )
 
 func (d *PostgresDB) Migrate() error {
 	driver, err := postgres.WithInstance(d.Db.DB, &postgres.Config{})
 	m, err := migrate.NewWithDatabaseInstance("file://migrations/postgres", "users", driver)
 	if err != nil {
-		log.Printf("Could find migrations: %v", err)
+		slog.Error("Could find migrations: %v", err)
 		return err
 	}
 	if err := m.Up(); err != nil {
@@ -24,6 +24,6 @@ func (d *PostgresDB) Migrate() error {
 
 	}
 
-	log.Println("migrations completed")
+	slog.Info("migrations completed")
 	return nil
 }

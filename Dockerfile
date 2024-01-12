@@ -1,4 +1,4 @@
-FROM golang:1.20.2-alpine3.17 as builder
+FROM golang:1.21.5-alpine3.17 as builder
 
 RUN apk update && apk upgrade && apk add pkgconf git bash build-base sudo
 
@@ -28,7 +28,7 @@ COPY --from=builder /etc/group /etc/group
 
 COPY --from=builder /app/cryptobot /app/cryptobot
 COPY --from=builder /app/config/config.yaml /app/config/config.yaml
-COPY --from=builder /app/migrations/ /app/migrations/
+COPY --from=builder /app/migrations/postgres /app/migrations/postgres
 
 USER appuser:appuser
 

@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"github.com/Alexander2k/CryptoBotGo/config"
 	"github.com/Alexander2k/CryptoBotGo/internal/exchange"
 	"github.com/Alexander2k/CryptoBotGo/internal/repository"
 	"github.com/Alexander2k/CryptoBotGo/pkg/storage/clickhouseStorage"
 	"github.com/Alexander2k/CryptoBotGo/pkg/storage/postgresStorage"
+	"log/slog"
 	"net/http"
 	"time"
 )
@@ -17,6 +18,10 @@ func Start() error {
 	if err != nil {
 		panic(err)
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+
 	server := http.Server{
 		Addr:              "localhost:8181",
 		ReadTimeout:       time.Second * 60,
@@ -42,7 +47,7 @@ func Start() error {
 	ex := exchange.NewExchange(repo)
 
 	bybitPerp := ex.BybitConnectPerpetual(conf)
-	bybitSpot := ex.BybitConnectSpot(conf)
+	//bybitSpot := ex.BybitConnectSpot(conf)
 
 	go func() {
 		for {
@@ -50,21 +55,26 @@ func Start() error {
 			if err != nil {
 				return
 			}
-			fmt.Printf("%v\n", orderBook)
-		}
-
-	}()
-
-	go func() {
-		for {
-			orderBook, err := ex.CollectOrderBook(bybitSpot)
+			err = ex.Repo.ClickHouseRepository.SaveHeatMap(ctx, orderBook)
 			if err != nil {
+				slog.Error("Error saving", err)
 				return
 			}
-			fmt.Printf("%v\n", orderBook)
+			//slog.Info("Perp Data", orderBook)
 		}
 
 	}()
+
+	//go func() {
+	//	for {
+	//		orderBook, err := ex.CollectOrderBook(bybitSpot)
+	//		if err != nil {
+	//			return
+	//		}
+	//		slog.Info("Spot Data", orderBook)
+	//	}
+	//
+	//}()
 
 	if err := server.ListenAndServe(); err != nil {
 		return err
