@@ -6,8 +6,8 @@ var (
                             market,
                             ticker,
                             price,
-                            qty)
-values (generateUUIDv4(),
+                            qtys) 
+values ($1,
         $2,
         $3,
         $4,

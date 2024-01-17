@@ -14,14 +14,14 @@ type BookStorage struct {
 }
 
 type MeanPrices struct {
-	Market    string             `json:"market,omitempty"`
-	Ticker    string             `json:"ticker,omitempty"`
-	Timestamp int64              `json:"timestamp,omitempty"`
-	Prices    map[string]float64 `json:"tickers,omitempty"`
+	Market    string               `json:"market,omitempty"`
+	Ticker    string               `json:"ticker,omitempty"`
+	Timestamp int64                `json:"timestamp,omitempty"`
+	Prices    map[string][]float64 `json:"tickers,omitempty"`
 }
 
 func NewMeanPrices() *MeanPrices {
-	return &MeanPrices{Prices: make(map[string]float64)}
+	return &MeanPrices{Prices: make(map[string][]float64)}
 }
 
 func NewBookStorage() *BookStorage {
@@ -45,22 +45,21 @@ func (b *BookStorage) CalculateMeanPrice() *MeanPrices {
 	b.mu.RUnlock()
 
 	meanPrices := NewMeanPrices()
-	tmp := make(map[string]float64)
+	tmp := make(map[string][]float64)
 
-	for k, _ := range prices {
+	for k, v := range prices {
+		qtyFloats := make([]float64, len(v))
 		pricesQty := prices[k]
-		length := len(pricesQty)
 
-		sum := 0.0
 		for _, p := range pricesQty {
 			float, err := strconv.ParseFloat(p, 64)
 			if err != nil {
 				return nil
 			}
-			sum += float
+			qtyFloats = append(qtyFloats, float)
 		}
-		mean := sum / float64(length)
-		tmp[k] = mean
+
+		tmp[k] = qtyFloats
 	}
 
 	meanPrices.Prices = tmp

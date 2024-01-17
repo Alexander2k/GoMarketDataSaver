@@ -6,9 +6,9 @@ CREATE TABLE if not exists buybit.heatmap
     timestamp DATETIME,
     market    String,
     ticker    String,
-    price     String,
+    price     Float64,
     qty       Float64
 
 )
     ENGINE = MergeTree()
-        PRIMARY KEY (id, timestamp, ticker, price);
+        PRIMARY KEY (id, timestamp,price);

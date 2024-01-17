@@ -7,6 +7,7 @@ import (
 	"github.com/Alexander2k/CryptoBotGo/internal/repository"
 	"github.com/gorilla/websocket"
 	"log"
+	"log/slog"
 	"strings"
 	"sync"
 	"time"
@@ -159,9 +160,11 @@ func (e *Exchange) CollectOrderBook(channel chan *domain.Event) (*domain.MeanPri
 					}
 				}
 			}
-		case <-ticker.C:
+		case x := <-ticker.C:
+			slog.Info("Event", x)
 			data := storage.CalculateMeanPrice()
-			data.Ticker = orderBook.Topic
+			topic := strings.Split(orderBook.Topic, ".")
+			data.Ticker = topic[2]
 			data.Market = storage.Market
 			return data, nil
 

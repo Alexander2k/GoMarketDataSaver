@@ -15,11 +15,11 @@ db:
 clickDB:
   host: 127.0.0.1
   port: 9000
-  database: default
+  database: buybit
   username: default
   password: password
   dial_timeout: 30
-  max_open_conns: 5
-  max_idle: 5
-  block_buffer_size: 10
+  max_open_conns: 50
+  max_idle: 50
+  block_buffer_size: 10000
   max_compression_buffer: 10240

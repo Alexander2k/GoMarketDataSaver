@@ -7,6 +7,7 @@ services:
     restart: always
     depends_on:
       - postgres-db
+      - clickhouse
     networks:
       - crypto-net
 

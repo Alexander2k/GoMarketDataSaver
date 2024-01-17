@@ -31,7 +31,7 @@ func NewClickHouseDB(cfg *config.Config) (*ClickHouseDB, error) {
 		Compression: &clickhouse.Compression{
 			Method: clickhouse.CompressionLZ4,
 		},
-		DialTimeout:          time.Second * 30,
+		DialTimeout:          time.Minute * 1,
 		MaxOpenConns:         cfg.ClickDB.MaxOpenConns,
 		MaxIdleConns:         cfg.ClickDB.MaxIdleConns,
 		ConnMaxLifetime:      time.Duration(10) * time.Minute,
@@ -43,7 +43,7 @@ func NewClickHouseDB(cfg *config.Config) (*ClickHouseDB, error) {
 				Name    string
 				Version string
 			}{
-				{Name: "my-app", Version: "0.1"},
+				{Name: "crypto-clickhouse", Version: "0.1"},
 			},
 		},
 	})

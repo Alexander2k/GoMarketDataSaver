@@ -6,6 +6,7 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/google/uuid"
 	"log/slog"
+	"strconv"
 )
 
 type ClickHouseRepository struct {
@@ -35,13 +36,22 @@ func (c *ClickHouseRepository) SaveHeatMap(ctx context.Context, prices *domain.M
 	for pr, qty := range prices.Prices {
 
 		newUUID, _ := uuid.NewUUID()
+		priceFloat, err := strconv.ParseFloat(pr, 64)
+		if err != nil {
+			return err
+		}
 
-		_, err := c.conn.Query(ctx, clkInsertHeatMap, newUUID,
-			prices.Timestamp,
-			prices.Market,
-			prices.Ticker,
-			pr,
-			qty)
+		err = c.conn.Exec(ctx, clkInsertHeatMap, newUUID, prices.Timestamp, prices.Market, prices.Ticker, priceFloat, qty)
+		if err != nil {
+			return err
+		}
+
+		//err := c.conn.AsyncInsert(ctx, clkInsertHeatMap, false, newUUID,
+		//	prices.Timestamp,
+		//	prices.Market,
+		//	prices.Ticker,
+		//	pr,
+		//	qty)
 
 		if err != nil {
 			slog.Error("Error SaveHeatMap", err)
