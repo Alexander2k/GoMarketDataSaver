@@ -57,21 +57,10 @@ func Start() error {
 				slog.Error("Error saving", err)
 				return
 			}
-			//slog.Info("Perp Data", orderBook)
+
 		}
 
 	}()
-
-	//go func() {
-	//	for {
-	//		orderBook, err := ex.CollectOrderBook(bybitSpot)
-	//		if err != nil {
-	//			return
-	//		}
-	//		slog.Info("Spot Data", orderBook)
-	//	}
-	//
-	//}()
 
 	if err := server.ListenAndServe(); err != nil {
 		return err
