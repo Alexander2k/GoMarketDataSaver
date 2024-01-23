@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  bot:
+  crypto-bot:
     build: .
     container_name: crypto-bot
     restart: always

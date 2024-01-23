@@ -46,7 +46,7 @@ type (
 
 func NewConfig() (c *Config, err error) {
 	viper.SetConfigName("config")
-	viper.AddConfigPath("./app/config/")
+	viper.AddConfigPath("./config/")
 	viper.AutomaticEnv()
 
 	err = viper.ReadInConfig()
