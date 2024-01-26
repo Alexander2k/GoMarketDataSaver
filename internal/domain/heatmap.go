@@ -74,6 +74,7 @@ func (b *BookStorage) ClearDataUnsafe() {
 	}
 
 }
+
 func (b *BookStorage) ClearDataSafe() {
 	b.mu.Lock()
 	for k := range b.Prices {

@@ -2,7 +2,7 @@ bybit:
   url_perpetual: wss://stream.bybit.com/v5/public/linear
   url_spot: wss://stream.bybit.com/v5/public/spot
   spot_pairs: orderbook.50.BTCUSDT
-  perpetual_pairs: orderbook.50.BTCUSDT
+  perpetual_pairs: orderbook.50.BTCUSDT,kline.1.BTCUSDT,publicTrade.BTCUSDT,tickers.BTCUSDT
 
 db:
   host: localhost

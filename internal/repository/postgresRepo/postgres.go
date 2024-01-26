@@ -108,3 +108,9 @@ func (r *PostgresRepository) SaveTrade(ctx context.Context, e *domain.Event, tra
 	}
 	return affected, nil
 }
+
+func (r *PostgresRepository) SaveHeatMap(ctx context.Context, prices *domain.MeanPrices) error {
+	log.Println("Saving heat map")
+
+	return nil
+}

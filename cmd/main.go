@@ -1,12 +1,10 @@
 package main
 
 import (
-	"context"
 	"github.com/Alexander2k/CryptoBotGo/config"
 	"github.com/Alexander2k/CryptoBotGo/internal/exchange"
 	"github.com/Alexander2k/CryptoBotGo/internal/metrics"
 	"github.com/Alexander2k/CryptoBotGo/internal/repository"
-	"github.com/Alexander2k/CryptoBotGo/pkg/storage/clickhouseStorage"
 	"github.com/Alexander2k/CryptoBotGo/pkg/storage/postgresStorage"
 	"log"
 	"log/slog"
@@ -44,35 +42,32 @@ func main() {
 		logger.Error(err.Error())
 	}
 	if err = db.Migrate(); err != nil {
-		logger.Error(err.Error())
+		logger.Info(err.Error())
 	}
 
-	clickHouseDB, err := clickhouseStorage.NewClickHouseDB(conf)
-	if err != nil {
-		logger.Error(err.Error())
-	}
+	//clickHouseDB, err := clickhouseStorage.NewClickHouseDB(conf)
+	//if err != nil {
+	//	logger.Error(err.Error())
+	//}
 
-	repo := repository.NewRepository(db.Db, clickHouseDB.DB)
+	repo := repository.NewRepository(db.Db)
 	ex := exchange.NewExchange(repo)
 
 	bybitPerp := ex.BybitConnectPerpetual(conf)
-	//bybitSpot := ex.BybitConnectSpot(conf)
 
-	go func() {
-		for {
-			orderBook, err := ex.CollectOrderBook(bybitPerp)
-			if err != nil {
-				return
-			}
-			err = ex.Repo.ClickHouseRepository.SaveHeatMap(context.Background(), orderBook)
-			if err != nil {
-				logger.Error(err.Error())
-				return
-			}
+	//go func() {
+	//
+	//	err = ex.CollectData(bybitPerp)
+	//	if err != nil {
+	//		logger.Error(err.Error())
+	//	}
+	//
+	//}()
 
-		}
+	orderboookChan, candleChan := ex.CollectData(bybitPerp)
 
-	}()
+	_ = ex.CollectOrderBook(orderboookChan)
+	_ = ex.CollectCandle(candleChan)
 
 	if err := server.ListenAndServe(); err != nil {
 		logger.Error(err.Error())

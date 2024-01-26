@@ -45,6 +45,7 @@ func (e *Exchange) ConveyorExchange(channels ...<-chan *domain.Event) chan *doma
 func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 	var wg sync.WaitGroup
 	wg.Add(len(channels))
+	storage := domain.NewBookStorage()
 	for _, channel := range channels {
 		ch := channel
 		go func() {
@@ -78,7 +79,35 @@ func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 					}
 
 					if strings.Contains(string(data.Event), "orderbook") {
+						var orderBook domain.BybitOrderBook
+						err := json.Unmarshal(data.Event, &orderBook)
+						if err != nil {
+							log.Printf("Error Unmarshal Perpetual")
+						}
 
+						storage.Market = data.Market
+
+						if orderBook.Type == "snapshot" {
+							for _, a := range orderBook.Data.Asks {
+								storage.StorePrice(a)
+							}
+
+							for _, b := range orderBook.Data.Bids {
+								storage.StorePrice(b)
+							}
+
+						}
+
+						if orderBook.Type == "delta" {
+							for _, a := range orderBook.Data.Asks {
+								storage.StorePrice(a)
+							}
+
+							for _, b := range orderBook.Data.Bids {
+								storage.StorePrice(b)
+							}
+
+						}
 					}
 
 				case "Spot":
@@ -119,7 +148,7 @@ func (e *Exchange) StoreData(channels ...<-chan *domain.Event) {
 
 }
 
-func (e *Exchange) CollectOrderBook(channel chan *domain.Event) (*domain.MeanPrices, error) {
+func (e *Exchange) CollectOB(channel chan *domain.Event) (*domain.MeanPrices, error) {
 	var orderBook domain.BybitOrderBook
 	storage := domain.NewBookStorage()
 
@@ -171,4 +200,133 @@ func (e *Exchange) CollectOrderBook(channel chan *domain.Event) (*domain.MeanPri
 		}
 	}
 
+}
+
+func (e *Exchange) CollectData(in chan *domain.Event) (chan *domain.Event, chan *domain.Event) {
+	var wg sync.WaitGroup
+	orderBookChannel := make(chan *domain.Event)
+	candleChanel := make(chan *domain.Event)
+	//tradesChanel := make(chan *domain.Event)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case x := <-in:
+				if strings.Contains(string(x.Event), "orderbook") {
+					orderBookChannel <- x
+				}
+
+				if strings.Contains(string(x.Event), "kline") {
+					candleChanel <- x
+				}
+				//
+				//if strings.Contains(string(x.Event), "publicTrade") {
+				//	tradesChanel <- x
+				//}
+
+			}
+		}
+	}()
+
+	go func() {
+		wg.Wait()
+	}()
+
+	return orderBookChannel, candleChanel
+
+}
+
+func (e *Exchange) CollectOrderBook(in chan *domain.Event) error {
+	var orderBook domain.BybitOrderBook
+	var wg sync.WaitGroup
+	storage := domain.NewBookStorage()
+
+	ticker := time.NewTicker(60000 * time.Millisecond)
+
+	wg.Add(1)
+	go func() {
+		for {
+			defer wg.Done()
+			select {
+			case x := <-in:
+				{
+					err := json.Unmarshal(x.Event, &orderBook)
+					if err != nil {
+						return
+					}
+
+					storage.Market = x.Market
+
+					if orderBook.Type == "snapshot" {
+						for _, a := range orderBook.Data.Asks {
+							storage.StorePrice(a)
+						}
+
+						for _, b := range orderBook.Data.Bids {
+							storage.StorePrice(b)
+						}
+
+					}
+
+					if orderBook.Type == "delta" {
+						for _, a := range orderBook.Data.Asks {
+							storage.StorePrice(a)
+						}
+
+						for _, b := range orderBook.Data.Bids {
+							storage.StorePrice(b)
+						}
+
+					}
+
+				}
+			case <-ticker.C:
+				data := storage.CalculateMeanPrice()
+				topic := strings.Split(orderBook.Topic, ".")
+				data.Ticker = topic[2]
+				data.Market = storage.Market
+				//log.Println("Event", data)
+				log.Println("Length data", len(data.Prices))
+				err := e.Repo.PgRepository.SaveHeatMap(context.Background(), data)
+				if err != nil {
+					return
+				}
+
+			}
+		}
+	}()
+
+	go func() {
+		wg.Wait()
+	}()
+
+	return nil
+
+}
+
+func (e *Exchange) CollectCandle(in chan *domain.Event) error {
+	for {
+		select {
+		case event := <-in:
+			if strings.Contains(string(event.Event), "true") {
+				log.Println("Event kline", event.Event)
+				log.Println("Save kline")
+
+			}
+		}
+	}
+}
+
+func (e *Exchange) CollectTrades(in chan *domain.Event) error {
+
+	data := <-in
+	log.Printf("CollectTrades", data)
+	return nil
+}
+
+func (e *Exchange) CollectTicker(in chan *domain.Event) error {
+	data := <-in
+	log.Printf("CollectTicker", data)
+	return nil
 }

@@ -1,3 +1,5 @@
+
+
 create table if not exists tickers_perp
 (
     id                bigserial primary key,
@@ -23,8 +25,8 @@ create table if not exists tickers_perp
     Bid1Size          varchar default null,
     Ask1Price         varchar default null,
     Ask1Size          varchar default null,
-    cs                varchar  default null,
-    ts                varchar  default null
+    cs                varchar default null,
+    ts                varchar default null
 );
 
 create table if not exists tickers_spot
@@ -62,16 +64,41 @@ create table if not exists trade
     blocktrade  bool
 );
 
-create index tickers_spot_symbol_index on tickers_spot(symbol);
-create index tickers_spot_topic_index on tickers_spot(topic);
-create index tickers_spot_ts_index on tickers_spot(ts);
+create table if not exists orderbook
+(
+    id        bigserial primary key,
+    timestamp timestamp,
+    market    varchar,
+    ticker    varchar,
+    price     double precision,
+    qty       double precision[]
+);
 
-create index tickers_perp_symbol_index on tickers_perp(symbol);
-create index tickers_perp_topic_index on tickers_perp(topic);
-create index tickers_perp_ts_index on tickers_perp(ts);
+create
+    index tickers_spot_symbol_index on tickers_spot (symbol);
+create
+    index tickers_spot_topic_index on tickers_spot (topic);
+create
+    index tickers_spot_ts_index on tickers_spot (ts);
 
-create index trade_symbol_index on trade(symbol);
-create index trade_market_index on trade(market);
-create index trade_side_index on trade(side);
-create index trade_topic_index on trade(topic);
-create index trade_ts_index on trade(ts);
+create
+    index tickers_perp_symbol_index on tickers_perp (symbol);
+create
+    index tickers_perp_topic_index on tickers_perp (topic);
+create
+    index tickers_perp_ts_index on tickers_perp (ts);
+
+create
+    index trade_symbol_index on trade (symbol);
+create
+    index trade_market_index on trade (market);
+create
+    index trade_side_index on trade (side);
+create
+    index trade_topic_index on trade (topic);
+create
+    index trade_ts_index on trade (ts);
+create index orderbook_ts_index on orderbook (timestamp);
+create index orderbook_ticker_index on orderbook (ticker);
+create index orderbook_market_index on orderbook (market);
+

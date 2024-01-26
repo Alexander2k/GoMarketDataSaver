@@ -28,19 +28,19 @@ services:
     networks:
       - crypto-net
 
-  clickhouse:
-    image: bitnami/clickhouse:latest
-    container_name: crypto-clickhouse
-    restart: always
-    ports:
-      - "127.0.0.1:9000:9000"
-      - "127.0.0.1:8123:8123"
-    volumes:
-      - crypto-clickhouse:/var/lib/clickhouse
-    environment:
-      - CLICKHOUSE_ADMIN_PASSWORD=password
-    networks:
-        - crypto-net
+#  clickhouse:
+#    image: bitnami/clickhouse:latest
+#    container_name: crypto-clickhouse
+#    restart: always
+#    ports:
+#      - "127.0.0.1:9000:9000"
+#      - "127.0.0.1:8123:8123"
+#    volumes:
+#      - crypto-clickhouse:/var/lib/clickhouse
+#    environment:
+#      - CLICKHOUSE_ADMIN_PASSWORD=password
+#    networks:
+#        - crypto-net
 
   grafana:
     image: grafana/grafana
