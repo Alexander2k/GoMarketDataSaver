@@ -202,11 +202,13 @@ func (e *Exchange) CollectOB(channel chan *domain.Event) (*domain.MeanPrices, er
 
 }
 
-func (e *Exchange) CollectData(in chan *domain.Event) (chan *domain.Event, chan *domain.Event) {
+func (e *Exchange) CollectData(in chan *domain.Event) (chan *domain.Event, chan *domain.Event, chan *domain.Event, chan *domain.Event, chan *domain.Event) {
 	var wg sync.WaitGroup
 	orderBookChannel := make(chan *domain.Event)
 	candleChanel := make(chan *domain.Event)
-	//tradesChanel := make(chan *domain.Event)
+	tradesChanel := make(chan *domain.Event)
+	tickerChanel := make(chan *domain.Event)
+	liquidChanel := make(chan *domain.Event)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -220,10 +222,16 @@ func (e *Exchange) CollectData(in chan *domain.Event) (chan *domain.Event, chan 
 				if strings.Contains(string(x.Event), "kline") {
 					candleChanel <- x
 				}
-				//
-				//if strings.Contains(string(x.Event), "publicTrade") {
-				//	tradesChanel <- x
-				//}
+
+				if strings.Contains(string(x.Event), "publicTrade") {
+					tradesChanel <- x
+				}
+				if strings.Contains(string(x.Event), "tickers") {
+					tickerChanel <- x
+				}
+				if strings.Contains(string(x.Event), "liquidation") {
+					liquidChanel <- x
+				}
 
 			}
 		}
@@ -233,7 +241,7 @@ func (e *Exchange) CollectData(in chan *domain.Event) (chan *domain.Event, chan 
 		wg.Wait()
 	}()
 
-	return orderBookChannel, candleChanel
+	return orderBookChannel, candleChanel, tradesChanel, tickerChanel, liquidChanel
 
 }
 
@@ -286,8 +294,8 @@ func (e *Exchange) CollectOrderBook(in chan *domain.Event) error {
 				topic := strings.Split(orderBook.Topic, ".")
 				data.Ticker = topic[2]
 				data.Market = storage.Market
-				//log.Println("Event", data)
-				log.Println("Length data", len(data.Prices))
+
+				log.Println("Length data", data.Prices)
 				err := e.Repo.PgRepository.SaveHeatMap(context.Background(), data)
 				if err != nil {
 					return
@@ -306,27 +314,93 @@ func (e *Exchange) CollectOrderBook(in chan *domain.Event) error {
 }
 
 func (e *Exchange) CollectCandle(in chan *domain.Event) error {
-	for {
-		select {
-		case event := <-in:
-			if strings.Contains(string(event.Event), "true") {
-				log.Println("Event kline", event.Event)
-				log.Println("Save kline")
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case event := <-in:
+				if strings.Contains(string(event.Event), "true") {
+					log.Println("Event kline", string(event.Event))
+					log.Println("Save kline")
+				}
 
 			}
 		}
-	}
+
+	}()
+
+	go func() {
+		wg.Wait()
+	}()
+	return nil
+
 }
 
 func (e *Exchange) CollectTrades(in chan *domain.Event) error {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case event := <-in:
+				log.Println("Event Trades", string(event.Event))
+				log.Println("Save trade")
+			}
+		}
 
-	data := <-in
-	log.Printf("CollectTrades", data)
+	}()
+
+	go func() {
+		wg.Wait()
+	}()
+
 	return nil
+
 }
 
 func (e *Exchange) CollectTicker(in chan *domain.Event) error {
-	data := <-in
-	log.Printf("CollectTicker", data)
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case event := <-in:
+				log.Println("Event Ticker", string(event.Event))
+				log.Println("Save Tick")
+			}
+		}
+	}()
+
+	go func() {
+		wg.Wait()
+	}()
+
+	return nil
+}
+
+func (e *Exchange) CollectLiquidation(in chan *domain.Event) error {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		for {
+			select {
+			case event := <-in:
+				log.Println("Event Liquidation", string(event.Event))
+				log.Println("Save Liquidation")
+			}
+		}
+	}()
+
+	go func() {
+		wg.Wait()
+	}()
+
 	return nil
 }

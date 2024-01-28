@@ -64,10 +64,13 @@ func main() {
 	//
 	//}()
 
-	orderboookChan, candleChan := ex.CollectData(bybitPerp)
+	orderBookChan, candleChan, tradesChan, tickerChanel, liquidChanel := ex.CollectData(bybitPerp)
 
-	_ = ex.CollectOrderBook(orderboookChan)
+	_ = ex.CollectOrderBook(orderBookChan)
 	_ = ex.CollectCandle(candleChan)
+	_ = ex.CollectTrades(tradesChan)
+	_ = ex.CollectTicker(tickerChanel)
+	_ = ex.CollectLiquidation(liquidChanel)
 
 	if err := server.ListenAndServe(); err != nil {
 		logger.Error(err.Error())
