@@ -5,18 +5,17 @@ import (
 	"fmt"
 	"github.com/Alexander2k/CryptoBotGo/config"
 	"github.com/Alexander2k/CryptoBotGo/internal/domain"
+	"github.com/gorilla/websocket"
 	"log"
 	"sync"
 	"time"
 )
 
 func (e *Exchange) BybitConnectPerpetual(c *config.Config) chan *domain.Event {
-	//dur := time.Minute * 1
+	var wg sync.WaitGroup
 	ticker := time.NewTicker(time.Minute * 5)
-	messageChan := make(chan []byte, 1)
-	dataChan := make(chan *domain.Event, 5)
-	var wg = sync.WaitGroup{}
-	wg.Add(2)
+	messageChan := make(chan []byte)
+	dataChan := make(chan *domain.Event)
 
 	dial, _, err := e.websocket.Dial(c.Bybit.UrlPerpetual, nil)
 	if err != nil {
@@ -29,14 +28,16 @@ func (e *Exchange) BybitConnectPerpetual(c *config.Config) chan *domain.Event {
 	})
 
 	ping, err := json.Marshal(&domain.PingMessage{
-		ReqId: "999999",
+		ReqId: "777",
 		Op:    "ping",
 	})
 
-	err = dial.WriteMessage(1, subscribe)
+	err = dial.WriteMessage(websocket.TextMessage, subscribe)
 	if err != nil {
 		return nil
 	}
+	wg.Add(2)
+
 	go func() {
 		defer wg.Done()
 		for {
@@ -54,7 +55,7 @@ func (e *Exchange) BybitConnectPerpetual(c *config.Config) chan *domain.Event {
 		for {
 			select {
 			case <-ticker.C:
-				err := dial.WriteMessage(1, ping)
+				err = dial.WriteMessage(websocket.PingMessage, ping)
 				if err != nil {
 					log.Printf("Error: %v", err)
 				} else {
@@ -80,8 +81,8 @@ func (e *Exchange) BybitConnectPerpetual(c *config.Config) chan *domain.Event {
 func (e *Exchange) BybitConnectSpot(c *config.Config) chan *domain.Event {
 
 	ticker := time.NewTicker(time.Minute * 5)
-	messageChan := make(chan []byte, 1)
-	dataChan := make(chan *domain.Event, 5)
+	messageChan := make(chan []byte)
+	dataChan := make(chan *domain.Event)
 	var wg = sync.WaitGroup{}
 	wg.Add(2)
 
@@ -96,11 +97,11 @@ func (e *Exchange) BybitConnectSpot(c *config.Config) chan *domain.Event {
 	})
 
 	ping, err := json.Marshal(&domain.PingMessage{
-		ReqId: "999999",
+		ReqId: "777",
 		Op:    "ping",
 	})
 
-	err = dial.WriteMessage(1, subscribe)
+	err = dial.WriteMessage(websocket.TextMessage, subscribe)
 	if err != nil {
 		log.Printf("Error subscription: %v", err)
 	}
@@ -121,7 +122,7 @@ func (e *Exchange) BybitConnectSpot(c *config.Config) chan *domain.Event {
 		for {
 			select {
 			case <-ticker.C:
-				err := dial.WriteMessage(1, ping)
+				err := dial.WriteMessage(websocket.PingMessage, ping)
 				if err != nil {
 					log.Printf("Error: %v", err)
 				}
