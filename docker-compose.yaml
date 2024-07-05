@@ -1,46 +1,30 @@
-version: "3.8"
-
 services:
   crypto-bot:
     build: .
     container_name: crypto-bot
     restart: always
     depends_on:
-      - postgres-db
-      - clickhouse
+      - timescale-db
     networks:
       - crypto-net
 
 
-  postgres-db:
-    image: postgres:latest
-    container_name: crypto-db
+  timescale-db:
+    image: timescale/timescaledb:latest-pg16
+    container_name: crypto-timescale-db
     restart: always
     user: postgres
     ports:
-      - "5455:5432"
+      - "5460:5432"
     environment:
-      POSTGRES_DB: crypto-db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: crypto-timescale-db
+      POSTGRES_USER: timescale
+      POSTGRES_PASSWORD: timescale
     volumes:
-      - crypto-db:/var/lib/postgresql/data/
+      - crypto-timescale-db:/var/lib/postgresql/data
     networks:
       - crypto-net
 
-#  clickhouse:
-#    image: bitnami/clickhouse:latest
-#    container_name: crypto-clickhouse
-#    restart: always
-#    ports:
-#      - "127.0.0.1:9000:9000"
-#      - "127.0.0.1:8123:8123"
-#    volumes:
-#      - crypto-clickhouse:/var/lib/clickhouse
-#    environment:
-#      - CLICKHOUSE_ADMIN_PASSWORD=password
-#    networks:
-#        - crypto-net
 
   grafana:
     image: grafana/grafana
@@ -68,10 +52,8 @@ services:
 
 
 volumes:
-  crypto-cache:
-  crypto-db:
-  crypto-clickhouse:
   crypto-grafana:
+  crypto-timescale-db:
 
 
 networks:

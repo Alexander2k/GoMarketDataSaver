@@ -322,7 +322,7 @@ func (e *Exchange) CollectCandle(in chan *domain.Event) error {
 			select {
 			case event := <-in:
 				if strings.Contains(string(event.Event), "true") {
-					log.Println("Event kline", string(event.Event))
+					log.Println("Event kline", event.String())
 					log.Println("Save kline")
 				}
 
@@ -338,16 +338,44 @@ func (e *Exchange) CollectCandle(in chan *domain.Event) error {
 
 }
 
-func (e *Exchange) CollectTrades(in chan *domain.Event) error {
+func (e *Exchange) CollectTrades(spot chan *domain.Event, perp chan *domain.Event) error {
 	var wg sync.WaitGroup
+	var tradesSpot domain.BybitTrade
+	var tradesPerp domain.BybitTrade
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		for {
 			select {
-			case event := <-in:
-				log.Println("Event Trades", string(event.Event))
-				log.Println("Save trade")
+			case eventP := <-perp:
+				err := json.Unmarshal(eventP.Event, &tradesPerp)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				_, err = e.Repo.SaveTrade(context.Background(), eventP, &tradesPerp)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+				log.Println("TODO Save Perpetual trade")
+
+			case eventS := <-spot:
+
+				err := json.Unmarshal(eventS.Event, &tradesSpot)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+				_, err = e.Repo.SaveTrade(context.Background(), eventS, &tradesSpot)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				log.Println("TODO Save Spot trade")
+
 			}
 		}
 
@@ -361,17 +389,37 @@ func (e *Exchange) CollectTrades(in chan *domain.Event) error {
 
 }
 
-func (e *Exchange) CollectTicker(in chan *domain.Event) error {
+func (e *Exchange) CollectTicker(spot chan *domain.Event, perp chan *domain.Event) error {
 	var wg sync.WaitGroup
 	wg.Add(1)
-
+	var spotTicker domain.BybitTickersSpot
+	var perpTicker domain.BybitTickersPerp
 	go func() {
 		defer wg.Done()
 		for {
 			select {
-			case event := <-in:
-				log.Println("Event Ticker", string(event.Event))
-				log.Println("Save Tick")
+			case eventS := <-spot:
+				err := json.Unmarshal(eventS.Event, &spotTicker)
+				if err != nil {
+					return
+				}
+				_, err = e.Repo.SaveSpotTicker(context.Background(), &spotTicker)
+				if err != nil {
+					log.Printf(err.Error())
+					return
+				}
+
+			case eventP := <-perp:
+				err := json.Unmarshal(eventP.Event, &perpTicker)
+				if err != nil {
+					return
+				}
+				_, err = e.Repo.SavePerpetualTicker(context.Background(), &perpTicker)
+				if err != nil {
+					log.Printf(err.Error())
+					return
+				}
+
 			}
 		}
 	}()
@@ -392,7 +440,7 @@ func (e *Exchange) CollectLiquidation(in chan *domain.Event) error {
 		for {
 			select {
 			case event := <-in:
-				log.Println("Event Liquidation", string(event.Event))
+				log.Println("Event Liquidation", event.String())
 				log.Println("Save Liquidation")
 			}
 		}

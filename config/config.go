@@ -7,9 +7,8 @@ import (
 
 type (
 	Config struct {
-		PDB     PostgresDB   `mapstructure:"db"`
-		Bybit   BybitConfig  `mapstructure:"bybit"`
-		ClickDB ClickHouseDB `mapstructure:"clickDB"`
+		PDB   PostgresDB  `mapstructure:"db"`
+		Bybit BybitConfig `mapstructure:"bybit"`
 	}
 
 	PostgresDB struct {
@@ -19,20 +18,6 @@ type (
 		Password string `mapstructure:"password"`
 		DBName   string `mapstructure:"db_name"`
 		SSLMode  string `mapstructure:"ssl"`
-	}
-
-	ClickHouseDB struct {
-		Host                 string `mapstructure:"host"`
-		Port                 string `mapstructure:"port"`
-		Database             string `mapstructure:"database"`
-		Username             string `mapstructure:"username"`
-		Password             string `mapstructure:"password"`
-		MaxExecutionTime     int    `mapstructure:"max_execution_time"`
-		DialTimeout          int    `mapstructure:"dial_timeout"`
-		MaxOpenConns         int    `mapstructure:"max_open_conns"`
-		MaxIdleConns         int    `mapstructure:"max_idle"`
-		BlockBufferSize      uint8  `mapstructure:"block_buffer_size"`
-		MaxCompressionBuffer int    `mapstructure:"max_compression_buffer"`
 	}
 
 	BybitConfig struct {

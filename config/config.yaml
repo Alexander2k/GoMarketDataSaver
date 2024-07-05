@@ -1,25 +1,15 @@
 bybit:
   url_perpetual: wss://stream.bybit.com/v5/public/linear
   url_spot: wss://stream.bybit.com/v5/public/spot
-  spot_pairs: orderbook.50.BTCUSDT
-  perpetual_pairs: orderbook.50.BTCUSDT,kline.1.BTCUSDT,publicTrade.BTCUSDT,tickers.BTCUSDT,liquidation.BTCUSDT
+  spot_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT
+  perpetual_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT #kline.1.BTCUSDT,
 
 db:
   host: localhost
-  port: 5455
-  username: postgres
-  password: postgres
-  db_name: crypto-db
+  port: 5460
+  username: timescale
+  password: password
+  db_name: crypto-timescale-db
   ssl: disable
 
-clickDB:
-  host: 127.0.0.1
-  port: 9000
-  database: buybit
-  username: default
-  password: password
-  dial_timeout: 30
-  max_open_conns: 50
-  max_idle: 50
-  block_buffer_size: 10000
-  max_compression_buffer: 10240
+

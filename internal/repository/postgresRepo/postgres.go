@@ -83,30 +83,64 @@ func (r *PostgresRepository) SavePerpetualTicker(ctx context.Context, perp *doma
 }
 
 func (r *PostgresRepository) SaveTrade(ctx context.Context, e *domain.Event, trade *domain.BybitTrade) (int64, error) {
-	result, err := r.db.ExecContext(ctx, sqlSaveTrades,
-		e.Market,
-		trade.Topic,
-		trade.Type,
-		trade.Ts,
-		trade.Data[0].T,
-		trade.Data[0].Symbol,
-		trade.Data[0].Side,
-		trade.Data[0].TradeSize,
-		trade.Data[0].TradePrice,
-		trade.Data[0].Direction,
-		trade.Data[0].TradeId,
-		trade.Data[0].BlockTrade)
-	if err != nil {
-		log.Printf("Error saving trade: %v", err)
-		return 0, err
+
+	if len(trade.Data) > 1 {
+		log.Println("Massive")
+		for _, v := range trade.Data {
+			result, err := r.db.ExecContext(ctx, sqlSaveTrades,
+				e.Market,
+				trade.Topic,
+				trade.Type,
+				trade.Ts,
+				v.T,
+				v.Symbol,
+				v.Side,
+				v.TradeSize,
+				v.TradePrice,
+				v.Direction,
+				v.TradeId,
+				v.BlockTrade)
+
+			if err != nil {
+				log.Printf("Error saving trade: %v", err)
+				return 0, err
+			}
+			affected, err := result.RowsAffected()
+			if err != nil {
+				log.Printf("Error adding trade: %v", err)
+				return 0, err
+			}
+			return affected, nil
+
+		}
+	} else {
+		result, err := r.db.ExecContext(ctx, sqlSaveTrades,
+			e.Market,
+			trade.Topic,
+			trade.Type,
+			trade.Ts,
+			trade.Data[0].T,
+			trade.Data[0].Symbol,
+			trade.Data[0].Side,
+			trade.Data[0].TradeSize,
+			trade.Data[0].TradePrice,
+			trade.Data[0].Direction,
+			trade.Data[0].TradeId,
+			trade.Data[0].BlockTrade)
+		if err != nil {
+			log.Printf("Error saving trade: %v", err)
+			return 0, err
+		}
+		affected, err := result.RowsAffected()
+		if err != nil {
+			log.Printf("Error adding trade: %v", err)
+			return 0, err
+		}
+		return affected, nil
 	}
 
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Printf("Error adding trade: %v", err)
-		return 0, err
-	}
-	return affected, nil
+	return 0, nil
+
 }
 
 func (r *PostgresRepository) SaveHeatMap(ctx context.Context, prices *domain.MeanPrices) error {

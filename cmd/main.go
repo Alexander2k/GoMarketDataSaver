@@ -43,34 +43,20 @@ func main() {
 	}
 	if err = db.Migrate(); err != nil {
 		logger.Info(err.Error())
+		return
 	}
-
-	//clickHouseDB, err := clickhouseStorage.NewClickHouseDB(conf)
-	//if err != nil {
-	//	logger.Error(err.Error())
-	//}
 
 	repo := repository.NewRepository(db.Db)
 	ex := exchange.NewExchange(repo)
 
 	bybitPerp := ex.BybitConnectPerpetual(conf)
+	bybitSpot := ex.BybitConnectSpot(conf)
 
-	//go func() {
-	//
-	//	err = ex.CollectData(bybitPerp)
-	//	if err != nil {
-	//		logger.Error(err.Error())
-	//	}
-	//
-	//}()
+	_, _, tradesChanP, tickerP, _ := ex.CollectData(bybitPerp)
+	_, _, tradesChanS, tickerS, _ := ex.CollectData(bybitSpot)
 
-	orderBookChan, candleChan, tradesChan, tickerChanel, liquidChanel := ex.CollectData(bybitPerp)
-
-	_ = ex.CollectOrderBook(orderBookChan)
-	_ = ex.CollectCandle(candleChan)
-	_ = ex.CollectTrades(tradesChan)
-	_ = ex.CollectTicker(tickerChanel)
-	_ = ex.CollectLiquidation(liquidChanel)
+	_ = ex.CollectTrades(tradesChanS, tradesChanP)
+	_ = ex.CollectTicker(tickerS, tickerP)
 
 	if err := server.ListenAndServe(); err != nil {
 		logger.Error(err.Error())

@@ -42,7 +42,7 @@ var (
                          price24hpcnt,
                          usdindexprice) values ($1, $2, $3, $4, $5, $6,$7,$8,$9,$10,$11,$12,$13) returning id`
 
-	sqlSaveTrades = `insert into trade(
+	sqlSaveTrades = `insert into trades(
                   market,
                   topic,
                   type,
