@@ -313,17 +313,36 @@ func (e *Exchange) CollectOrderBook(in chan *domain.Event) error {
 
 }
 
-func (e *Exchange) CollectCandle(in chan *domain.Event) error {
+func (e *Exchange) CollectCandle(spot chan *domain.Event, perp chan *domain.Event) error {
 	var wg sync.WaitGroup
 	wg.Add(1)
+	var spotCandle domain.BybitKline
+	var perpCandle domain.BybitKline
 	go func() {
 		defer wg.Done()
 		for {
 			select {
-			case event := <-in:
-				if strings.Contains(string(event.Event), "true") {
-					log.Println("Event kline", event.String())
-					log.Println("Save kline")
+			case eventS := <-spot:
+				err := json.Unmarshal(eventS.Event, &spotCandle)
+				if err != nil {
+					log.Printf("Error unmarshalling event %v, %v \n", eventS.Event, err.Error())
+					return
+				}
+
+				_, err = e.Repo.SaveKlineSpot(context.Background(), &spotCandle)
+				if err != nil {
+					return
+				}
+			case eventP := <-perp:
+				err := json.Unmarshal(eventP.Event, &perpCandle)
+				if err != nil {
+					log.Printf("Error unmarshalling event %v, %v \n", eventP.Event, err.Error())
+					return
+				}
+
+				_, err = e.Repo.SaveKlinePerp(context.Background(), &perpCandle)
+				if err != nil {
+					return
 				}
 
 			}

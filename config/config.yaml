@@ -1,8 +1,8 @@
 bybit:
   url_perpetual: wss://stream.bybit.com/v5/public/linear
   url_spot: wss://stream.bybit.com/v5/public/spot
-  spot_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT
-  perpetual_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT #kline.1.BTCUSDT,
+  spot_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT,kline.1.BTCUSDT
+  perpetual_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT,kline.1.BTCUSDT
 
 db:
   host: localhost

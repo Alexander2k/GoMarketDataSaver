@@ -1,4 +1,3 @@
-
 create table if not exists tickers_perp
 (
     id                bigserial primary key,
@@ -72,5 +71,43 @@ create table if not exists orderbook
     ticker    varchar,
     price     double precision,
     qty       double precision[]
+);
+
+create table if not exists candle_spot
+(
+    id          bigserial primary key,
+    topic       varchar,
+    startCandle numeric,
+    endCandle   numeric,
+    interval    varchar,
+    open        varchar,
+    close       varchar,
+    high        varchar,
+    low         varchar,
+    volume      varchar,
+    turnover    varchar,
+    confirm     boolean,
+    timestamp   numeric,
+    ts          numeric,
+    type        varchar
+);
+
+create table if not exists candle_perp
+(
+    id          bigserial primary key,
+    topic       varchar,
+    startCandle numeric,
+    endCandle   numeric,
+    interval    varchar,
+    open        varchar,
+    close       varchar,
+    high        varchar,
+    low         varchar,
+    volume      varchar,
+    turnover    varchar,
+    confirm     boolean,
+    timestamp   numeric,
+    ts          numeric,
+    type        varchar
 );
 

@@ -13,6 +13,8 @@ type PgRepository interface {
 	SavePerpetualTicker(ctx context.Context, perp *domain.BybitTickersPerp) (int64, error)
 	SaveTrade(ctx context.Context, e *domain.Event, trade *domain.BybitTrade) (int64, error)
 	SaveHeatMap(ctx context.Context, prices *domain.MeanPrices) error
+	SaveKlinePerp(ctx context.Context, kline *domain.BybitKline) (int64, error)
+	SaveKlineSpot(ctx context.Context, kline *domain.BybitKline) (int64, error)
 }
 
 type Repository struct {

@@ -85,7 +85,7 @@ func (r *PostgresRepository) SavePerpetualTicker(ctx context.Context, perp *doma
 func (r *PostgresRepository) SaveTrade(ctx context.Context, e *domain.Event, trade *domain.BybitTrade) (int64, error) {
 
 	if len(trade.Data) > 1 {
-		log.Println("Massive")
+		log.Printf("Massive %v \n", trade.Data)
 		for _, v := range trade.Data {
 			result, err := r.db.ExecContext(ctx, sqlSaveTrades,
 				e.Market,
@@ -110,7 +110,7 @@ func (r *PostgresRepository) SaveTrade(ctx context.Context, e *domain.Event, tra
 				log.Printf("Error adding trade: %v", err)
 				return 0, err
 			}
-			return affected, nil
+			return affected, err
 
 		}
 	} else {
@@ -136,7 +136,7 @@ func (r *PostgresRepository) SaveTrade(ctx context.Context, e *domain.Event, tra
 			log.Printf("Error adding trade: %v", err)
 			return 0, err
 		}
-		return affected, nil
+		return affected, err
 	}
 
 	return 0, nil
@@ -147,4 +147,137 @@ func (r *PostgresRepository) SaveHeatMap(ctx context.Context, prices *domain.Mea
 	log.Println("Saving heat map")
 
 	return nil
+}
+
+func (r *PostgresRepository) SaveKlinePerp(ctx context.Context, kline *domain.BybitKline) (int64, error) {
+
+	if len(kline.Data) > 1 {
+		log.Printf("Saving kline Massive %v \n", kline.Data)
+		for _, v := range kline.Data {
+			result, err := r.db.ExecContext(ctx, sqlSaveCandlePerp,
+				kline.Topic,
+				v.Start,
+				v.End,
+				v.Interval,
+				v.Open,
+				v.Close,
+				v.High,
+				v.Low,
+				v.Volume,
+				v.Turnover,
+				v.Confirm,
+				v.Timestamp,
+				kline.Ts,
+				kline.Type,
+			)
+			if err != nil {
+				log.Println("Error saving kline: v% \n", err)
+				return 0, err
+			}
+
+			affected, err := result.RowsAffected()
+			if err != nil {
+				log.Println("Error saving kline: v% \n", err)
+				return 0, err
+			}
+			return affected, err
+		}
+
+	} else {
+		result, err := r.db.ExecContext(ctx, sqlSaveCandlePerp,
+			kline.Topic,
+			kline.Data[0].Start,
+			kline.Data[0].End,
+			kline.Data[0].Interval,
+			kline.Data[0].Open,
+			kline.Data[0].Close,
+			kline.Data[0].High,
+			kline.Data[0].Low,
+			kline.Data[0].Volume,
+			kline.Data[0].Turnover,
+			kline.Data[0].Confirm,
+			kline.Data[0].Timestamp,
+			kline.Ts,
+			kline.Type,
+		)
+		if err != nil {
+			log.Println("Error saving kline: v% \n", err)
+			return 0, err
+		}
+
+		affected, err := result.RowsAffected()
+		if err != nil {
+			log.Println("Error saving kline: v% \n", err)
+			return 0, err
+		}
+		return affected, err
+	}
+
+	return 0, nil
+}
+
+func (r *PostgresRepository) SaveKlineSpot(ctx context.Context, kline *domain.BybitKline) (int64, error) {
+	if len(kline.Data) > 1 {
+		log.Printf("Saving kline Massive %v \n", kline.Data)
+		for _, v := range kline.Data {
+			result, err := r.db.ExecContext(ctx, sqlSaveCandleSpot,
+				kline.Topic,
+				v.Start,
+				v.End,
+				v.Interval,
+				v.Open,
+				v.Close,
+				v.High,
+				v.Low,
+				v.Volume,
+				v.Turnover,
+				v.Confirm,
+				v.Timestamp,
+				kline.Ts,
+				kline.Type,
+			)
+			if err != nil {
+				log.Println("Error saving kline: v% \n", err)
+				return 0, err
+			}
+
+			affected, err := result.RowsAffected()
+			if err != nil {
+				log.Println("Error saving kline: v% \n", err)
+				return 0, err
+			}
+			return affected, err
+		}
+
+	} else {
+		result, err := r.db.ExecContext(ctx, sqlSaveCandleSpot,
+			kline.Topic,
+			kline.Data[0].Start,
+			kline.Data[0].End,
+			kline.Data[0].Interval,
+			kline.Data[0].Open,
+			kline.Data[0].Close,
+			kline.Data[0].High,
+			kline.Data[0].Low,
+			kline.Data[0].Volume,
+			kline.Data[0].Turnover,
+			kline.Data[0].Confirm,
+			kline.Data[0].Timestamp,
+			kline.Ts,
+			kline.Type,
+		)
+		if err != nil {
+			log.Println("Error saving kline: v% \n", err)
+			return 0, err
+		}
+
+		affected, err := result.RowsAffected()
+		if err != nil {
+			log.Println("Error saving kline: v% \n", err)
+			return 0, err
+		}
+		return affected, err
+	}
+
+	return 0, nil
 }

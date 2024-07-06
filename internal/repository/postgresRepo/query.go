@@ -54,5 +54,36 @@ var (
                   trade_price,
                   direction,
                   tradeid,
-                  blocktrade) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) returning id`
+                  blocktrade) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id`
+
+	sqlSaveCandlePerp = `insert into candle_perp(
+                        topic,
+                        startcandle,
+                        endcandle,
+                        interval,
+                        open,
+                        close,
+                        high,
+                        low,
+                        volume,
+                        turnover,
+                        confirm,
+                        timestamp,
+                        ts,
+                        type) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning id`
+	sqlSaveCandleSpot = `insert into candle_spot(
+                        topic,
+                        startcandle,
+                        endcandle,
+                        interval,
+                        open,
+                        close,
+                        high,
+                        low,
+                        volume,
+                        turnover,
+                        confirm,
+                        timestamp,
+                        ts,
+                        type) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning id`
 )

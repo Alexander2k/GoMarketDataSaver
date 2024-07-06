@@ -12,7 +12,7 @@ import (
 
 func (d *PostgresDB) Migrate() error {
 	driver, err := postgres.WithInstance(d.Db.DB, &postgres.Config{})
-	m, err := migrate.NewWithDatabaseInstance("file://migrations/postgres", "crypto-db", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://migrations/postgres", "crypto-timescale-db", driver)
 	if err != nil {
 		slog.Error("Could find migrations: %v", err)
 		return err

@@ -52,11 +52,12 @@ func main() {
 	bybitPerp := ex.BybitConnectPerpetual(conf)
 	bybitSpot := ex.BybitConnectSpot(conf)
 
-	_, _, tradesChanP, tickerP, _ := ex.CollectData(bybitPerp)
-	_, _, tradesChanS, tickerS, _ := ex.CollectData(bybitSpot)
+	_, candleP, tradesChanP, tickerP, _ := ex.CollectData(bybitPerp)
+	_, candleS, tradesChanS, tickerS, _ := ex.CollectData(bybitSpot)
 
 	_ = ex.CollectTrades(tradesChanS, tradesChanP)
 	_ = ex.CollectTicker(tickerS, tickerP)
+	_ = ex.CollectCandle(candleS, candleP)
 
 	if err := server.ListenAndServe(); err != nil {
 		logger.Error(err.Error())
