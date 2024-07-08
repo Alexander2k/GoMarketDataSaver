@@ -5,8 +5,8 @@ bybit:
   perpetual_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT,kline.1.BTCUSDT
 
 db:
-  host: localhost
-  port: 5460
+  host: timescale-db
+  port: 5432
   username: timescale
   password: password
   db_name: crypto-timescale-db

@@ -1,10 +1,8 @@
 services:
-  crypto-bot:
+  crypto-collector:
     build: .
-    container_name: crypto-bot
+    container_name: crypto-collector
     restart: always
-    depends_on:
-      - timescale-db
     networks:
       - crypto-net
 
