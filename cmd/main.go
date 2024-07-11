@@ -19,6 +19,7 @@ func main() {
 		err := metrics.Listen("localhost:8989")
 		if err != nil {
 			log.Printf("Error listening prometheus metrics: %v", err)
+			return
 		}
 	}()
 
@@ -27,6 +28,7 @@ func main() {
 	conf, err := config.NewConfig()
 	if err != nil {
 		slog.Error(err.Error())
+		return
 	}
 
 	server := http.Server{
@@ -50,17 +52,28 @@ func main() {
 	ex := exchange.NewExchange(repo)
 
 	bybitPerp := ex.BybitConnectPerpetual(conf)
-	bybitSpot := ex.BybitConnectSpot(conf)
+	//bybitSpot := ex.BybitConnectSpot(conf)
 
-	_, candleP, tradesChanP, tickerP, _ := ex.CollectData(bybitPerp)
-	_, candleS, tradesChanS, tickerS, _ := ex.CollectData(bybitSpot)
+	orderBookP, _, _, _, _ := ex.CollectData(bybitPerp)
+	//_, _, _, _, _ := ex.CollectData(bybitSpot)
 
-	_ = ex.CollectTrades(tradesChanS, tradesChanP)
-	_ = ex.CollectTicker(tickerS, tickerP)
-	_ = ex.CollectCandle(candleS, candleP)
+	//_ = ex.CollectTrades(tradesChanS, tradesChanP)
+	//_ = ex.CollectTicker(tickerS, tickerP)
+	//_ = ex.CollectCandle(candleS, candleP)'
+	_ = ex.CollectOrderBook(orderBookP)
+	//for {
+	//	select {
+	//	case x := <-orderBookP:
+	//		log.Println(x.String())
+	//	case y := <-orderBookS:
+	//		log.Println(y.String())
+	//	}
+	//
+	//}
 
 	if err := server.ListenAndServe(); err != nil {
 		logger.Error(err.Error())
+		return
 	}
 
 }

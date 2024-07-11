@@ -31,7 +31,7 @@ type (
 
 func NewConfig() (c *Config, err error) {
 	viper.SetConfigName("config")
-	viper.AddConfigPath("./crypto-collector/config/")
+	viper.AddConfigPath("./config/")
 	viper.AutomaticEnv()
 
 	err = viper.ReadInConfig()

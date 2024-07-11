@@ -152,7 +152,7 @@ func (r *PostgresRepository) SaveHeatMap(ctx context.Context, prices *domain.Mea
 func (r *PostgresRepository) SaveKlinePerp(ctx context.Context, kline *domain.BybitKline) (int64, error) {
 
 	if len(kline.Data) > 1 {
-		log.Printf("Saving kline Massive %v \n", kline.Data)
+
 		for _, v := range kline.Data {
 			result, err := r.db.ExecContext(ctx, sqlSaveCandlePerp,
 				kline.Topic,
@@ -218,7 +218,6 @@ func (r *PostgresRepository) SaveKlinePerp(ctx context.Context, kline *domain.By
 
 func (r *PostgresRepository) SaveKlineSpot(ctx context.Context, kline *domain.BybitKline) (int64, error) {
 	if len(kline.Data) > 1 {
-		log.Printf("Saving kline Massive %v \n", kline.Data)
 		for _, v := range kline.Data {
 			result, err := r.db.ExecContext(ctx, sqlSaveCandleSpot,
 				kline.Topic,

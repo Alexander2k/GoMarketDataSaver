@@ -1,12 +1,12 @@
 bybit:
   url_perpetual: wss://stream.bybit.com/v5/public/linear
   url_spot: wss://stream.bybit.com/v5/public/spot
-  spot_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT,kline.1.BTCUSDT
-  perpetual_pairs: publicTrade.BTCUSDT,tickers.BTCUSDT,kline.1.BTCUSDT
+  spot_pairs:  orderbook.50.BTCUSDT #,publicTrade.BTCUSDT,tickers.BTCUSDT,kline.1.BTCUSDT,
+  perpetual_pairs: orderbook.50.BTCUSDT #,publicTrade.BTCUSDT,tickers.BTCUSDT,kline.1.BTCUSDT,
 
 db:
-  host: timescale-db
-  port: 5432
+  host: localhost
+  port: 5460
   username: timescale
   password: password
   db_name: crypto-timescale-db

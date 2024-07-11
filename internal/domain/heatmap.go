@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"strconv"
 	"sync"
 	"time"
@@ -81,4 +82,9 @@ func (b *BookStorage) ClearDataSafe() {
 		delete(b.Prices, k)
 	}
 	b.mu.Unlock()
+}
+
+func (b *BookStorage) String() string {
+
+	return fmt.Sprintf("%s, %s, %s \n", b.Market, b.Ticker, b.Prices)
 }

@@ -3,6 +3,7 @@ package exchange
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/Alexander2k/CryptoBotGo/internal/domain"
 	"github.com/Alexander2k/CryptoBotGo/internal/repository"
 	"github.com/gorilla/websocket"
@@ -202,6 +203,9 @@ func (e *Exchange) CollectOB(channel chan *domain.Event) (*domain.MeanPrices, er
 
 }
 
+// CollectData
+//
+// orderBookChannel, candleChanel, tradesChanel, tickerChanel, liquidChanel
 func (e *Exchange) CollectData(in chan *domain.Event) (chan *domain.Event, chan *domain.Event, chan *domain.Event, chan *domain.Event, chan *domain.Event) {
 	var wg sync.WaitGroup
 	orderBookChannel := make(chan *domain.Event)
@@ -250,7 +254,15 @@ func (e *Exchange) CollectOrderBook(in chan *domain.Event) error {
 	var wg sync.WaitGroup
 	storage := domain.NewBookStorage()
 
-	ticker := time.NewTicker(60000 * time.Millisecond)
+	var currentTime = time.Now()
+	var startTime = currentTime.Truncate(time.Minute).Add(time.Minute)
+
+	fmt.Printf("Current: \t%v\nStartAt: \t%v\n", currentTime, startTime)
+
+	var duration = startTime.Sub(currentTime)
+	time.Sleep(duration)
+
+	var ticker = time.NewTicker(60 * time.Second)
 
 	wg.Add(1)
 	go func() {
@@ -258,48 +270,50 @@ func (e *Exchange) CollectOrderBook(in chan *domain.Event) error {
 		for {
 			select {
 			case x := <-in:
-				{
-					err := json.Unmarshal(x.Event, &orderBook)
-					if err != nil {
-						return
-					}
+				//log.Printf("Exchange %v \n", x.String())
 
-					storage.Market = x.Market
-
-					if orderBook.Type == "snapshot" {
-						for _, a := range orderBook.Data.Asks {
-							storage.StorePrice(a)
-						}
-
-						for _, b := range orderBook.Data.Bids {
-							storage.StorePrice(b)
-						}
-
-					}
-
-					if orderBook.Type == "delta" {
-						for _, a := range orderBook.Data.Asks {
-							storage.StorePrice(a)
-						}
-
-						for _, b := range orderBook.Data.Bids {
-							storage.StorePrice(b)
-						}
-
-					}
-
-				}
-			case <-ticker.C:
-				data := storage.CalculateMeanPrice()
-				topic := strings.Split(orderBook.Topic, ".")
-				data.Ticker = topic[2]
-				data.Market = storage.Market
-
-				log.Println("Length data", data.Prices)
-				err := e.Repo.PgRepository.SaveHeatMap(context.Background(), data)
+				err := json.Unmarshal(x.Event, &orderBook)
 				if err != nil {
 					return
 				}
+
+				storage.Market = x.Market
+
+				if orderBook.Type == "snapshot" {
+					for _, a := range orderBook.Data.Asks {
+						storage.StorePrice(a)
+					}
+
+					for _, b := range orderBook.Data.Bids {
+						storage.StorePrice(b)
+					}
+
+				}
+
+				if orderBook.Type == "delta" {
+					for _, a := range orderBook.Data.Asks {
+						storage.StorePrice(a)
+					}
+
+					for _, b := range orderBook.Data.Bids {
+						storage.StorePrice(b)
+					}
+
+				}
+
+			case tick := <-ticker.C:
+				//data := storage.CalculateMeanPrice()
+				//topic := strings.Split(orderBook.Topic, ".")
+				//data.Ticker = topic[2]
+				//data.Market = storage.Market
+
+				str := storage.String()
+				log.Println(tick, str)
+				storage.ClearDataSafe()
+				//err := e.Repo.PgRepository.SaveHeatMap(context.Background(), data)
+				//if err != nil {
+				//	return
+				//}
 
 			}
 		}
@@ -323,6 +337,7 @@ func (e *Exchange) CollectCandle(spot chan *domain.Event, perp chan *domain.Even
 		for {
 			select {
 			case eventS := <-spot:
+				log.Printf("CollectCandle %v \n", eventS.String())
 				err := json.Unmarshal(eventS.Event, &spotCandle)
 				if err != nil {
 					log.Printf("Error unmarshalling event %v, %v \n", eventS.Event, err.Error())
@@ -334,6 +349,7 @@ func (e *Exchange) CollectCandle(spot chan *domain.Event, perp chan *domain.Even
 					return
 				}
 			case eventP := <-perp:
+				log.Printf("CollectCandle %v \n", eventP.String())
 				err := json.Unmarshal(eventP.Event, &perpCandle)
 				if err != nil {
 					log.Printf("Error unmarshalling event %v, %v \n", eventP.Event, err.Error())
@@ -367,6 +383,7 @@ func (e *Exchange) CollectTrades(spot chan *domain.Event, perp chan *domain.Even
 		for {
 			select {
 			case eventP := <-perp:
+				log.Printf("CollectTrades %v \n", eventP.String())
 				err := json.Unmarshal(eventP.Event, &tradesPerp)
 				if err != nil {
 					log.Println(err)
@@ -378,9 +395,8 @@ func (e *Exchange) CollectTrades(spot chan *domain.Event, perp chan *domain.Even
 					return
 				}
 
-				log.Println("TODO Save Perpetual trade")
-
 			case eventS := <-spot:
+				log.Printf("CollectTrades %v \n", eventS.String())
 
 				err := json.Unmarshal(eventS.Event, &tradesSpot)
 				if err != nil {
@@ -393,7 +409,6 @@ func (e *Exchange) CollectTrades(spot chan *domain.Event, perp chan *domain.Even
 					log.Println(err)
 					return
 				}
-				log.Println("TODO Save Spot trade")
 
 			}
 		}
@@ -418,6 +433,7 @@ func (e *Exchange) CollectTicker(spot chan *domain.Event, perp chan *domain.Even
 		for {
 			select {
 			case eventS := <-spot:
+				log.Printf("CollectTicker %v \n", eventS.String())
 				err := json.Unmarshal(eventS.Event, &spotTicker)
 				if err != nil {
 					return
@@ -429,6 +445,7 @@ func (e *Exchange) CollectTicker(spot chan *domain.Event, perp chan *domain.Even
 				}
 
 			case eventP := <-perp:
+				log.Printf("CollectTicker %v \n", eventP.String())
 				err := json.Unmarshal(eventP.Event, &perpTicker)
 				if err != nil {
 					return

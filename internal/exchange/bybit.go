@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Alexander2k/CryptoBotGo/config"
 	"github.com/Alexander2k/CryptoBotGo/internal/domain"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"log"
 	"sync"
@@ -13,6 +14,7 @@ import (
 
 func (e *Exchange) BybitConnectPerpetual(c *config.Config) chan *domain.Event {
 	var wg sync.WaitGroup
+	id := uuid.New()
 	ticker := time.NewTicker(time.Minute * 5)
 	messageChan := make(chan []byte)
 	dataChan := make(chan *domain.Event)
@@ -28,7 +30,7 @@ func (e *Exchange) BybitConnectPerpetual(c *config.Config) chan *domain.Event {
 	})
 
 	ping, err := json.Marshal(&domain.PingMessage{
-		ReqId: "777",
+		ReqId: id.String(),
 		Op:    "ping",
 	})
 
@@ -79,7 +81,7 @@ func (e *Exchange) BybitConnectPerpetual(c *config.Config) chan *domain.Event {
 }
 
 func (e *Exchange) BybitConnectSpot(c *config.Config) chan *domain.Event {
-
+	id := uuid.New()
 	ticker := time.NewTicker(time.Minute * 5)
 	messageChan := make(chan []byte)
 	dataChan := make(chan *domain.Event)
@@ -97,7 +99,7 @@ func (e *Exchange) BybitConnectSpot(c *config.Config) chan *domain.Event {
 	})
 
 	ping, err := json.Marshal(&domain.PingMessage{
-		ReqId: "777",
+		ReqId: id.String(),
 		Op:    "ping",
 	})
 
